@@ -31,18 +31,27 @@ equals.addEventListener('click', () => {
   calculate(previous.innerText);
 })
 
+
 function appendNumber(number) {
   const last = previous.innerText.slice(-1);
-  if (last === '' || last === "0" && number != "0" && previous.innerText.length <= 1) {
+  const secondLast = previous.innerText.slice(-2,-1);
+
+  // a term can be started with any number but 0
+  if (last === '' || last === "0" && number != "0") {
     current.innerText = number;
     previous.innerText = number;
-  } else if (last === "0" && number === "0") {
-    current.innerText = current.innerText;
-    previous.innerText = current.innerText;
-  } else if (_.contains(["/","+","x","-"], last)) {
+  }
+  // prevent appending zeros in the beginning
+  else if (last === "0" && secondLast === "" && number === "0") {
+    return
+  }
+  // display the term in previous but in current only the recent pressed number
+  else if (_.contains(["/","+","x","-"], last)) {
     current.innerText = number;
     previous.innerText = previous.innerText + number;
-  } else {
+  }
+  // update previous and current display simultaneously with every new number
+  else {
     previous.innerText = previous.innerText + number;
     current.innerText = current.innerText + number;
   }
@@ -51,41 +60,61 @@ function appendNumber(number) {
 function appendOperand(operand) {
   const last = previous.innerText.slice(-1);
   const secondLast = previous.innerText.slice(-2,-1);
+
+  // change operands
   if (_.contains(["/","+","x"], last) && _.contains(["/","+","x"], operand) ) {
     previous.innerText = previous.innerText.slice(0,-1) + operand;
-  } else if (_.contains(["/","+","x"], secondLast) && last === "-") {
-    if ( operand != "-") {
+  }
+  // change combination of operands (/+x & -) into a new single operand
+  else if (_.contains(["/","+","x"], secondLast) && last === "-") {
     previous.innerText = previous.innerText.slice(0,-2) + operand
-    }
-  } else if (lastOperand === "=") {
+  }
+  // /+* operands cannot be in the first place
+  else if (_.contains(["","-"], last) && _.contains(["/","+","x"], operand)) {
+    return
+  }
+  // display result with new operand
+  else if (lastOperand === "=") {
     let index = previous.innerText.indexOf("=");
     previous.innerText = previous.innerText.slice(index+1) + operand
     current.innerText = current.innerText + operand;
-  } else if (lastOperand === "." && operand === ".") {
-    current.innerText = current.innerText;
-    previous.innerText = current.innerText;
-  } else if (operand === ".") {
+  }
+  // prevent double or more dots
+  else if (lastOperand === "." && operand === ".") {
+    return
+  }
+  // enable using decimal dots
+  else if (operand === ".") {
     previous.innerText = previous.innerText + operand;
     current.innerText = current.innerText + operand;
-  } else {
+  }
+  // display the term in previous but in current only the recent pressed operand
+  else {
     previous.innerText = previous.innerText + operand;
     current.innerText = operand;
   }
+  // save last operand that was pressed
   lastOperand = operand;
 }
 
 function calculate(calc) {
   const calcArr = previous.innerText.split(/(?=[/+x-])|(?<=[/+x-])/g);
+
+  // case when there is a negative number in the beginning
+  if (calcArr[0] === "-") {
+    calcArr[1] = `-${calcArr[1]}`
+    calcArr[0] = ''
+  }
   // Multiplication
   calcArr.forEach((c, index) => {
     if (c === "x") {
      if (calcArr[index + 1] != "-"){
       const multiplication = calcArr[index-1] * calcArr[index+1];
-      calcArr[index - 1] = calcArr[index + 1] = 0;
+      calcArr[index - 1] = calcArr[index + 1] = "";
       calcArr[index] = multiplication;
      } else {
       const multiplication = calcArr[index-1] * (-calcArr[index+2]);
-      calcArr[index - 1] = calcArr[index + 1] = calcArr[index + 2] = 0;
+      calcArr[index - 1] = calcArr[index + 1] = calcArr[index + 2] = "";
       calcArr[index] = multiplication;
       }
     }
@@ -93,16 +122,16 @@ function calculate(calc) {
     if (c === "/") {
       if (calcArr[index+1] != "-"){
        const division = calcArr[index-1] / calcArr[index+1];
-       calcArr[index - 1] = calcArr[index + 1] = 0;
+       calcArr[index - 1] = calcArr[index + 1] = "";
        calcArr[index] = division;
       } else {
        const division = calcArr[index-1] / (-calcArr[index+2]);
-       calcArr[index - 1] = calcArr[index + 1] = calcArr[index + 2] = 0;
+       calcArr[index - 1] = calcArr[index + 1] = calcArr[index + 2] = "";
        calcArr[index] = division;
        }
      }
   })
-  const calcArrFilt = calcArr.filter(c => c != 0);
+  const calcArrFilt = calcArr.filter(c => c != "");
 
   calcArrFilt.forEach((c,index) => {
     // Addition
@@ -132,7 +161,7 @@ function calculate(calc) {
   })
   let sum = 0;
   calcArrFilt.forEach(c => {
-    sum = sum + c;
+    sum += Number(c);
   })
   current.innerText = sum;
   previous.innerText = previous.innerText + "=" + sum;

@@ -1,13 +1,14 @@
 :root {
-  --color-green: rgb(12, 58, 12);
-  --color-lightyellow: rgb(213, 177, 133);
-  --color-lightgreen: rgb(75, 117, 76);
+  --color-darkblue: rgb(12, 28, 58);
+  --color-lightyellow: rgb(211, 200, 186);
+  --color-grayblue: rgb(89, 118, 145);
   --color-blue: rgb(110, 141, 198);
-  --color-lightorange: rgb(239, 158, 76);
+  --color-yellow: rgb(239, 206, 76);
   --color-lightred: rgb(213, 114, 114);
+  --color-red: rgb(227, 99, 52);
 }
 body {
-  background-color: rgb(73, 96, 34);
+  background: linear-gradient(rgb(63, 63, 174),rgb(227, 99, 52));
 }
 
 .wrapper {
@@ -20,7 +21,7 @@ body {
 
 #calculator {
   display: grid;
-  grid-template-columns: repeat(4, 96px);
+  grid-template-columns: repeat(4, 84px);
   grid-auto-rows: 72px;
   border-radius: 6px;
   border: 4px solid black;
@@ -39,7 +40,7 @@ button {
 
 .display {
   grid-column: 1/5;
-  background-color: var(--color-green);
+  background-color: var(--color-darkblue);
   border-radius: 5px;
   color: white;
   text-align: right;
@@ -50,10 +51,11 @@ button {
   height: 34px;
   padding-right: 8px;
   font-size: 24px;
+  padding-top: 4px;
 }
 
 #display-previous {
-  color: var(--color-lightorange);
+  color: var(--color-yellow);
 }
 
 #display-current {
@@ -61,7 +63,7 @@ button {
 }
 
 #clear {
-  background-color: var(--color-lightgreen);
+  background-color: var(--color-grayblue);
 }
 
 #delete {
